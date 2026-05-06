@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # AI Student Performance Predictor
 
 An AI-powered web application that uses Deep Learning to predict student academic performance and identify potential risk levels based on study habits, attendance, and lifestyle factors.
@@ -78,4 +77,3 @@ python app.py
 - **AI Recommendations**: Personalized suggestions based on data like study hours, sleep, and screen time.
 =======
 # student-performance
->>>>>>> d5a724b59d403060f9341188ab371007fc886f8f

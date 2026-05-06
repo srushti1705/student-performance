@@ -1,0 +1,13 @@
+@echo off
+echo Starting Student Performance AI...
+if not exist .venv (
+    echo Virtual environment not found. Creating one...
+    python -m venv .venv
+)
+call .venv\Scripts\activate
+echo Installing/Updating dependencies...
+pip install -r requirements.txt
+echo.
+echo Launching App...
+python app.py
+pause

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Student Performance Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div>
+                    <h1>Student Performance AI</h1>
+                    <p>Welcome, {{ username }}! Predict your academic success.</p>
+                </div>
+                <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+            </div>
+        </header>
+
+        <main>
+            <div class="glass-card" id="formCard">
+                <form id="predictionForm">
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label>Study Hours (hours/day)</label>
+                            <input type="range" name="study_hours" min="0" max="24" value="6" step="0.5" class="time-input">
+                            <span class="value-display">6 hours</span>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Extracurricular Hours (hours/day)</label>
+                            <input type="range" name="extracurricular_hours" min="0" max="24" value="2" step="0.5" class="time-input">
+                            <span class="value-display">2 hours</span>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Sleep Hours (hours/day)</label>
+                            <input type="range" name="sleep_hours" min="0" max="24" value="8" step="0.5" class="time-input">
+                            <span class="value-display">8 hours</span>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Social Hours (hours/day)</label>
+                            <input type="range" name="social_hours" min="0" max="24" value="3" step="0.5" class="time-input">
+                            <span class="value-display">3 hours</span>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Physical Activity (hours/day)</label>
+                            <input type="range" name="physical_activity" min="0" max="24" value="2" step="0.5" class="time-input">
+                            <span class="value-display">2 hours</span>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Stress Level</label>
+                            <select name="stress_level">
+                                <option value="Low">Low</option>
+                                <option value="Moderate" selected>Moderate</option>
+                                <option value="High">High</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="feedback-container" style="margin: 15px 0; text-align: center;">
+                        <h4 id="remainingHoursDisplay" style="color: #41431B;">Remaining hours left: 3</h4>
+                        <p id="realtimeWarning" style="color: #d9534f; font-weight: bold; min-height: 20px; margin-top: 5px;"></p>
+                    </div>
+
+                    <button type="submit" id="submitBtn">
+                        <span class="btn-text">Generate Analysis</span>
+                        <div class="loader" id="loader"></div>
+                    </button>
+                </form>
+            </div>
+
+            <div id="resultSection" class="glass-card result-section hidden">
+                <div class="score-card">
+                    <div class="score-labels">
+                        <h2 id="categoryLabel">---</h2>
+                        <p>Estimated Performance Score</p>
+                    </div>
+                    <div class="score-circle">
+                        <span id="scoreValue">--</span>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <h4>Impact Factors</h4>
+                        <ul id="explanationList"></ul>
+                    </div>
+                    <div class="detail-item">
+                        <h4>Strategic Suggestions</h4>
+                        <ul id="suggestionsList"></ul>
+                    </div>
+                </div>
+
+                <div class="personalized-card">
+                    <h4>🎯 Your Personalized Action Plan</h4>
+                    <p id="personalizedText" class="personalized-intro"></p>
+                    <div class="recommendations-priority">
+                        <div id="personalizedRecommendations"></div>
+                    </div>
+                </div>
+
+                <div class="path-card">
+                    <h4>Path to High Performance</h4>
+                    <ul id="whatIfRequirements" class="requirements-list"></ul>
+                </div>
+
+                <button id="resetBtn">New Prediction</button>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Monitoring Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.0.0/dist/chart.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <rect width="32" height="32" rx="8" fill="#6366f1"/>
+                    <path d="M10 16H22M16 10V22M10 22H22" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <h2>AcademiX</h2>
+            </div>
+            <p class="subtitle">Student Monitoring</p>
+        </div>
+        
+        <nav class="nav-menu">
+            <a href="/dashboard" class="nav-link active" data-icon="📊">Dashboard</a>
+            <a href="/students" class="nav-link" data-icon="👥">Students</a>
+            <a href="/reports" class="nav-link" data-icon="📋">Reports</a>
+            <a href="/settings" class="nav-link" data-icon="⚙️">Settings</a>
+        </nav>
+        
+        <div class="user-info">
+            <div class="user-avatar">{{ current_user.username[0].upper() }}</div>
+            <div class="user-details">
+                <p class="user-name">{{ current_user.username }}</p>
+                <p class="user-role">{{ current_user.user_type|title }}</p>
+            </div>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="top-header">
+            <div class="header-title">
+                <h1>Dashboard</h1>
+                <p>AI-Powered Academic Monitoring System</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn-icon" id="refreshBtn" title="Refresh">🔄</button>
+                <button class="btn-icon" id="filterBtn" title="Filter">🔽</button>
+            </div>
+        </header>
+
+        <!-- Stats Cards -->
+        <section class="stats-section">
+            <div class="stat-card card-primary">
+                <div class="stat-icon">👥</div>
+                <div class="stat-content">
+                    <p class="stat-label">Total Students</p>
+                    <h3 class="stat-value">{{ data.total_students }}</h3>
+                    <span class="stat-trend">Monitored this semester</span>
+                </div>
+            </div>
+
+            <div class="stat-card card-danger">
+                <div class="stat-icon">⚠️</div>
+                <div class="stat-content">
+                    <p class="stat-label">High Risk</p>
+                    <h3 class="stat-value">{{ data.high_risk_count }}</h3>
+                    <span class="stat-trend">Require intervention</span>
+                </div>
+            </div>
+
+            <div class="stat-card card-warning">
+                <div class="stat-icon">📈</div>
+                <div class="stat-content">
+                    <p class="stat-label">Moderate Risk</p>
+                    <h3 class="stat-value">{{ data.moderate_risk_count }}</h3>
+                    <span class="stat-trend">Under observation</span>
+                </div>
+            </div>
+
+            <div class="stat-card card-success">
+                <div class="stat-icon">✅</div>
+                <div class="stat-content">
+                    <p class="stat-label">Low Risk</p>
+                    <h3 class="stat-value">{{ data.low_risk_count }}</h3>
+                    <span class="stat-trend">On track</span>
+                </div>
+            </div>
+
+            <div class="stat-card card-info">
+                <div class="stat-icon">📊</div>
+                <div class="stat-content">
+                    <p class="stat-label">Avg GPA</p>
+                    <h3 class="stat-value">{{ data.avg_gpa }}</h3>
+                    <span class="stat-trend">All students</span>
+                </div>
+            </div>
+
+            <div class="stat-card card-info">
+                <div class="stat-icon">🎓</div>
+                <div class="stat-content">
+                    <p class="stat-label">Avg Attendance</p>
+                    <h3 class="stat-value">{{ data.avg_attendance }}%</h3>
+                    <span class="stat-trend">Current rate</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Charts Section -->
+        <section class="charts-section">
+            <!-- Risk Distribution Chart -->
+            <div class="chart-card">
+                <h3>Risk Distribution</h3>
+                <canvas id="riskChart"></canvas>
+            </div>
+
+            <!-- Trend Chart -->
+            <div class="chart-card">
+                <h3>Risk Score Trend</h3>
+                <canvas id="trendChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Recent Assessments -->
+        <section class="recent-section">
+            <div class="section-header">
+                <h3>Recent Assessments</h3>
+                <a href="/students" class="view-all">View All →</a>
+            </div>
+
+            <div class="students-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Risk Category</th>
+                            <th>Risk Score</th>
+                            <th>GPA</th>
+                            <th>Attendance</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr>
+                            <td class="student-name">{{ student.name }}</td>
+                            <td>
+                                <span class="badge badge-{{ student.risk_category|lower|replace(' ', '-') }}">
+                                    {{ student.risk_category }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="risk-bar">
+                                    <div class="risk-fill" style="width: {{ student.risk_score }}%; background-color: {% if student.risk_score > 70 %}#ef4444{% elif student.risk_score > 40 %}#f59e0b{% else %}#10b981{% endif %};"></div>
+                                </div>
+                                <span>{{ "%.1f"|format(student.risk_score) }}</span>
+                            </td>
+                            <td>{{ "%.2f"|format(student.gpa) }}</td>
+                            <td>{{ student.attendance_rate }}%</td>
+                            <td>
+                                <a href="/student/{{ student.id }}" class="btn-small">View</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        // Initialize Charts
+        const ctx1 = document.getElementById('riskChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'doughnut',
+            data: {
+                labels: ['Low Risk', 'Moderate Risk', 'High Risk'],
+                datasets: [{
+                    data: [{{ data.risk_distribution.get('Low Risk', 0) }}, {{ data.risk_distribution.get('Moderate Risk', 0) }}, {{ data.risk_distribution.get('High Risk', 0) }}],
+                    backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        const ctx2 = document.getElementById('trendChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6'],
+                datasets: [{
+                    label: 'Average Risk Score',
+                    data: [45, 42, 48, 43, 41, 39],
+                    borderColor: '#6366f1',
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // Refresh button
+        document.getElementById('refreshBtn').addEventListener('click', () => {
+            location.reload();
+        });
+    </script>
+</body>
+</html>

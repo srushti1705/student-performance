@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.0.0/dist/chart.umd.js"></script>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <rect width="32" height="32" rx="8" fill="#6366f1"/>
+                    <path d="M10 16H22M16 10V22M10 22H22" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <h2>AcademiX</h2>
+            </div>
+        </div>
+        <nav class="nav-menu">
+            <a href="/dashboard" class="nav-link" data-icon="📊">Dashboard</a>
+            <a href="/students" class="nav-link active" data-icon="👥">Students</a>
+        </nav>
+        <div class="user-info">
+            <div class="user-avatar">{{ current_user.username[0].upper() }}</div>
+            <div class="user-details">
+                <p class="user-name">{{ current_user.username }}</p>
+            </div>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <div class="header-title">
+                <h1>{{ student.name }}</h1>
+                <p>ID: {{ student.student_id }}</p>
+            </div>
+            <a href="/students" class="btn-secondary">← Back to Students</a>
+        </header>
+
+        <!-- Risk Overview -->
+        <section class="profile-section">
+            <div class="risk-overview">
+                <div class="risk-score-large">
+                    <div class="circle-progress" style="--value: {{ student.risk_score }}">
+                        <svg class="progress-ring" viewBox="0 0 200 200">
+                            <circle cx="100" cy="100" r="90" />
+                        </svg>
+                        <div class="progress-text">
+                            <h2>{{ "%.1f"|format(student.risk_score) }}</h2>
+                            <p>Risk Score</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="risk-details">
+                    <div class="detail-item">
+                        <label>Risk Category</label>
+                        <span class="badge badge-{{ student.risk_category|lower|replace(' ', '-') }} large">
+                            {{ student.risk_category }}
+                        </span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Current GPA</label>
+                        <p class="highlight">{{ "%.2f"|format(student.gpa) }}</p>
+                    </div>
+                    <div class="detail-item">
+                        <label>Attendance Rate</label>
+                        <p class="highlight">{{ student.attendance_rate }}%</p>
+                    </div>
+                    <div class="detail-item">
+                        <label>Last Assessment</label>
+                        <p>{{ student.last_assessment.strftime('%b %d, %Y') }}</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lifestyle Metrics -->
+        <section class="profile-section">
+            <h3>Lifestyle Metrics</h3>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon">📚</div>
+                    <div class="metric-info">
+                        <p class="metric-label">Study Hours</p>
+                        <p class="metric-value">{{ "%.1f"|format(student.study_hours) }} hrs/day</p>
+                        <p class="metric-status" style="color: {% if student.study_hours >= 5 %}#10b981{% else %}#ef4444{% endif %}">
+                            {% if student.study_hours >= 5 %}Adequate{% else %}Needs increase{% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon">😴</div>
+                    <div class="metric-info">
+                        <p class="metric-label">Sleep Hours</p>
+                        <p class="metric-value">{{ "%.1f"|format(student.sleep_hours) }} hrs/day</p>
+                        <p class="metric-status" style="color: {% if 6 <= student.sleep_hours <= 9 %}#10b981{% else %}#ef4444{% endif %}">
+                            {% if 6 <= student.sleep_hours <= 9 %}Healthy{% else %}Irregular{% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon">📱</div>
+                    <div class="metric-info">
+                        <p class="metric-label">Social/Screen Time</p>
+                        <p class="metric-value">{{ "%.1f"|format(student.social_hours) }} hrs/day</p>
+                        <p class="metric-status" style="color: {% if student.social_hours <= 2 %}#10b981{% else %}#ef4444{% endif %}">
+                            {% if student.social_hours <= 2 %}Controlled{% else %}High{% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon">🏃</div>
+                    <div class="metric-info">
+                        <p class="metric-label">Physical Activity</p>
+                        <p class="metric-value">{{ "%.1f"|format(student.physical_activity_hours) }} hrs/day</p>
+                        <p class="metric-status" style="color: {% if student.physical_activity_hours >= 1 %}#10b981{% else %}#f59e0b{% endif %}">
+                            {% if student.physical_activity_hours >= 1 %}Active{% else %}Low{% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon">🎭</div>
+                    <div class="metric-info">
+                        <p class="metric-label">Extracurricular</p>
+                        <p class="metric-value">{{ "%.1f"|format(student.extracurricular_hours) }} hrs/day</p>
+                        <p class="metric-status">{{ student.extracurricular_hours }} hour(s)</p>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon">😟</div>
+                    <div class="metric-info">
+                        <p class="metric-label">Stress Level</p>
+                        <p class="metric-value">{{ student.stress_level }}</p>
+                        <p class="metric-status" style="color: {% if student.stress_level == 'Low' %}#10b981{% elif student.stress_level == 'Moderate' %}#f59e0b{% else %}#ef4444{% endif %}">
+                            Needs attention
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Insights -->
+        <section class="profile-section">
+            <h3>AI-Generated Insights</h3>
+            <div class="insights-container">
+                {% if analysis.insights %}
+                    <div class="insights-list">
+                        {% for insight in analysis.insights %}
+                        <div class="insight-item">
+                            <span class="insight-icon">💡</span>
+                            <p>{{ insight }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="no-data">No insights available</p>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Weak Areas -->
+        {% if analysis.weak_areas %}
+        <section class="profile-section">
+            <h3>Weak Areas Identified</h3>
+            <div class="weak-areas">
+                {% for area in analysis.weak_areas %}
+                <div class="weak-area-tag">⚠️ {{ area }}</div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Interventions -->
+        {% if analysis.interventions %}
+        <section class="profile-section">
+            <h3>Recommended Interventions</h3>
+            <div class="interventions-list">
+                {% for intervention in analysis.interventions %}
+                <div class="intervention-card">
+                    <div class="intervention-header">
+                        <h4>{{ intervention.action }}</h4>
+                        <span class="priority-badge priority-{{ intervention.priority|lower }}">
+                            {{ intervention.priority }}
+                        </span>
+                    </div>
+                    <p class="intervention-impact">💼 {{ intervention.impact }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- What-If Analysis -->
+        <section class="profile-section">
+            <h3>What-If Analysis</h3>
+            <p class="section-subtitle">Explore how changes affect risk score</p>
+            <div class="whatif-form">
+                <div class="whatif-input">
+                    <label>Increase Study Hours to</label>
+                    <input type="number" id="whatifStudy" value="{{ student.study_hours }}" step="0.5" min="0" max="12">
+                    <span>hrs/day</span>
+                </div>
+                <button class="btn-primary" onclick="calculateWhatIf()">Calculate Impact</button>
+            </div>
+            <div id="whatifResult" class="whatif-result" style="display:none;">
+                <p>New Risk Score: <strong id="newRiskScore">0</strong></p>
+                <p id="riskChange" class="risk-change"></p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        function calculateWhatIf() {
+            const studyHours = parseFloat(document.getElementById('whatifStudy').value);
+            const currentRisk = {{ student.risk_score }};
+            
+            // Simple estimation (would be more sophisticated in production)
+            const newRisk = Math.max(0, currentRisk - (studyHours - {{ student.study_hours }}) * 5);
+            
+            document.getElementById('newRiskScore').textContent = newRisk.toFixed(1);
+            document.getElementById('riskChange').textContent = 
+                `Change: ${(newRisk - currentRisk).toFixed(1)} points (${((newRisk - currentRisk) / currentRisk * 100).toFixed(1)}%)`;
+            document.getElementById('whatifResult').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

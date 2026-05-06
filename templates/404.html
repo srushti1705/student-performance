@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found - AcademiX</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body style="background: #f9fafb; display: flex; align-items: center; justify-content: center; min-height: 100vh;">
+    <div class="error-container">
+        <div class="error-content">
+            <div class="error-code">404</div>
+            <div class="error-message">Page Not Found</div>
+            <p style="font-size: 16px; color: #6b7280; margin-bottom: 32px;">
+                The page you're looking for doesn't exist or has been moved.
+            </p>
+            <a href="/dashboard" class="btn-primary" style="display: inline-block; padding: 12px 24px; text-decoration: none;">
+                Go to Dashboard
+            </a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students - AcademiX</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <rect width="32" height="32" rx="8" fill="#6366f1"/>
+                    <path d="M10 16H22M16 10V22M10 22H22" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <h2>AcademiX</h2>
+            </div>
+        </div>
+        <nav class="nav-menu">
+            <a href="/dashboard" class="nav-link" data-icon="📊">Dashboard</a>
+            <a href="/students" class="nav-link active" data-icon="👥">Students</a>
+        </nav>
+        <div class="user-info">
+            <div class="user-avatar">{{ current_user.username[0].upper() }}</div>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <div class="header-title">
+                <h1>Students</h1>
+                <p>Manage and monitor all students</p>
+            </div>
+        </header>
+
+        <!-- Filter Bar -->
+        <section class="filter-section">
+            <div class="filter-group">
+                <input type="text" id="searchInput" placeholder="Search by name or ID..." class="search-input">
+                <select id="riskFilter" class="filter-select">
+                    <option value="all">All Risk Levels</option>
+                    <option value="Low Risk">Low Risk</option>
+                    <option value="Moderate Risk">Moderate Risk</option>
+                    <option value="High Risk">High Risk</option>
+                </select>
+                <button onclick="applyFilters()" class="btn-primary">Filter</button>
+            </div>
+        </section>
+
+        <!-- Students Table -->
+        <section class="students-section">
+            <div class="students-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>ID</th>
+                            <th>Risk Category</th>
+                            <th>Risk Score</th>
+                            <th>GPA</th>
+                            <th>Attendance</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if students %}
+                            {% for student in students %}
+                            <tr class="student-row">
+                                <td class="student-name">{{ student.name }}</td>
+                                <td>{{ student.student_id }}</td>
+                                <td>
+                                    <span class="badge badge-{{ student.risk_category|lower|replace(' ', '-') }}">
+                                        {{ student.risk_category }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="risk-bar">
+                                        <div class="risk-fill" style="width: {{ student.risk_score }}%; background-color: {% if student.risk_score > 70 %}#ef4444{% elif student.risk_score > 40 %}#f59e0b{% else %}#10b981{% endif %};"></div>
+                                    </div>
+                                    {{ "%.1f"|format(student.risk_score) }}
+                                </td>
+                                <td>{{ "%.2f"|format(student.gpa) }}</td>
+                                <td>{{ student.attendance_rate }}%</td>
+                                <td>
+                                    {% if student.flagged %}
+                                        <span class="status-badge status-flagged">🚩 Flagged</span>
+                                    {% elif student.intervention_active %}
+                                        <span class="status-badge status-intervention">🔄 Intervention</span>
+                                    {% else %}
+                                        <span class="status-badge status-normal">✓ Normal</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="/student/{{ student.id }}" class="btn-small">View Profile</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="8" style="text-align: center; padding: 20px; color: #999;">
+                                    No students found
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        function applyFilters() {
+            const search = document.getElementById('searchInput').value;
+            const risk = document.getElementById('riskFilter').value;
+            window.location.href = `/students?search=${search}&risk=${risk}`;
+        }
+
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                applyFilters();
+            }
+        });
+    </script>
+</body>
+</html>
